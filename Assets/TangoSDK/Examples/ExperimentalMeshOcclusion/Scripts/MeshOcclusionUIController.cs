@@ -619,13 +619,19 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
                 m_curAreaDescription.SaveMetadata(metadata);
 
                 // Save the tango dynamic mesh to file.
-                StartCoroutine(_DoSaveTangoDynamicMesh());
+
             });
             m_saveThread.Start();
+
+			while (m_saveThread.IsAlive) {
+				yield return null;
+			}
+
+			StartCoroutine (_DoSaveTangoDynamicMesh ());
         }
         else
         {
-            StartCoroutine(_DoSaveTangoDynamicMesh());
+			_DoSaveTangoDynamicMesh ();
         }
     }
 
@@ -638,7 +644,7 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
     /// 3. Serialize with XML on to the SD card.
     /// </summary>
     /// <returns>The coroutine IEnumerator.</returns>
-    private IEnumerator _DoSaveTangoDynamicMesh()
+	private IEnumerator _DoSaveTangoDynamicMesh()
     {
         m_savingText.gameObject.SetActive(true);
         m_savingText.text = "Extracting Whole Mesh...";
@@ -651,7 +657,7 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
         if (status != Tango3DReconstruction.Status.SUCCESS)
         {
             Debug.Log("Tango3DRExtractWholeMesh failed, status code = " + status);
-            yield break;
+			yield break;
         }
 
         Debug.Log("Tango3DRExtractWholeMesh finished");

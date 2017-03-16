@@ -1,0 +1,162 @@
+﻿using UnityEngine;
+using System.Collections;
+using Tango;
+
+public class BloonController : MonoBehaviour, ITangoDepth
+{
+	public GameObject m_marker;
+
+	public MicHelper m_micHelper;
+
+	private BloonMarker m_currentMarker;
+
+	private TangoApplication m_tangoApplication;
+
+	bool m_findPlaneWaitingForDepth;
+
+	public void Init(TangoApplication app) {
+		m_tangoApplication = app;
+		m_tangoApplication.Register(this);
+	}
+
+	// Use this for initialization
+	void Start ()
+	{
+	
+	}
+	
+	// Update is called once per frame
+	void Update ()
+	{
+	
+	}
+
+	public void HandleTouch (Touch t, Camera cam)
+	{
+		RaycastHit hitInfo;
+
+		if (t.phase == TouchPhase.Began) { // start touch
+			Debug.Log (t.phase);
+			if (Physics.Raycast (cam.ScreenPointToRay (t.position), out hitInfo)) {
+				// Found a marker, select it (so long as it isn't disappearing)!
+				GameObject tapped = hitInfo.collider.gameObject;
+//				if (!tapped.GetComponent<Animation> ().isPlaying) {
+					_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
+//				}
+			} else {
+				// Place a new point at that location, clear selection
+				Debug.Log("Adding Balloon");
+
+				StartCoroutine (_AddBalloon (t.position));
+			}
+		} else if ((t.phase == TouchPhase.Moved || t.phase == TouchPhase.Stationary) && m_currentMarker == null) {
+			Debug.Log ("Waiting to Record...");
+		} else if (t.phase == TouchPhase.Moved && m_currentMarker) {
+			// TODO do cool shit while moving around/recording
+		} else if (t.phase == TouchPhase.Ended && m_currentMarker ) { // end touch
+			Debug.Log("Recording/TouchPhase complete");
+
+			if(m_currentMarker.m_isRecording) {
+				m_micHelper.StopRecording (m_currentMarker);
+			}
+
+			m_currentMarker = null;
+		}
+	}
+
+	private void _PlayBackBalloonAndPop(BloonMarker marker) {
+		Debug.Log (string.Format ("PlayBackBalloonAndPop: {0}", marker.m_audioRecordingFilename));
+
+		if(!string.IsNullOrEmpty(marker.m_audioRecordingFilename)) {
+			m_micHelper.PlayRecording (marker.m_audioRecordingFilename);
+		}
+
+		m_currentMarker = null;
+	}
+
+	public GameObject AddMarkerByData (AreaLearningInGameController.MarkerData mark)
+	{
+		GameObject temp = Instantiate(m_marker,
+			mark.m_position,
+			mark.m_orientation) as GameObject;
+
+		return temp;
+	}
+
+	private IEnumerator _AddBalloon(Vector2 touchPosition) 
+	{
+		m_findPlaneWaitingForDepth = true;
+
+		// Turn on the camera and wait for a single depth update.
+		m_tangoApplication.SetDepthCameraRate(TangoEnums.TangoDepthCameraRate.MAXIMUM);
+		while (m_findPlaneWaitingForDepth)
+		{
+			yield return null;
+		}
+
+		m_tangoApplication.SetDepthCameraRate(TangoEnums.TangoDepthCameraRate.DISABLED);
+
+		// Find the plane.
+		Camera cam = Camera.main;
+
+		// Ensure the location is always facing the camera.  This is like a LookRotation, but for the Y axis.
+		Vector3 up = Vector3.up; // plane.normal;
+		Vector3 forward;
+		if (Vector3.Angle(Vector3.up, cam.transform.forward) < 175)
+		{
+			Vector3 right = Vector3.Cross(up, cam.transform.forward).normalized;
+			forward = Vector3.Cross(right, up).normalized;
+		}
+		else
+		{
+			// Normal is nearly parallel to camera look direction, the cross product would have too much
+			// floating point error in it.
+			forward = Vector3.Cross(up, cam.transform.right);
+		}
+
+		Vector3 inFront = cam.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.5f));
+
+		// Instantiate marker object.
+		GameObject newMarkObject = Instantiate(m_marker,
+			inFront,
+			Quaternion.LookRotation(forward, Vector3.up)
+		) as GameObject;
+
+		BloonMarker markerScript = newMarkObject.GetComponent<BloonMarker>();
+
+//		markerScript.m_type = m_currentMarkType;
+//		markerScript.m_timestamp = (float)m_poseController.m_poseTimestamp;
+
+//		Matrix4x4 uwTDevice = Matrix4x4.TRS(m_poseController.m_tangoPosition,
+//			m_poseController.m_tangoRotation,
+//			Vector3.one);
+//		Matrix4x4 uwTMarker = Matrix4x4.TRS(newMarkObject.transform.position,
+//			newMarkObject.transform.rotation,
+//			Vector3.one);
+//		markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
+
+//		m_markerList.Add(newMarkObject);
+
+		Debug.Log ("Balloon successfully Created");
+
+		m_currentMarker = markerScript;
+		m_micHelper.StartRecording (m_currentMarker);
+	}
+
+	/// <summary>
+	/// This is called each time new depth data is available.
+	/// 
+	/// On the Tango tablet, the depth callback occurs at 5 Hz.
+	/// </summary>
+	/// <param name="tangoDepth">Tango depth.</param>
+	public void OnTangoDepthAvailable(TangoUnityDepth tangoDepth)
+	{
+		// Don't handle depth here because the PointCloud may not have been updated yet.  Just
+		// tell the coroutine it can continue.
+		m_findPlaneWaitingForDepth = false;
+	}
+
+
+
+}
+

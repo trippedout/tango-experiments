@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.IO;
 
 public class MicHelper : MonoBehaviour
 {
@@ -100,24 +101,19 @@ public class MicHelper : MonoBehaviour
 			Debug.LogError ("Error saving file...");
 	}
 
-	public void PlayRecording (string filepath)
+	public void PlayRecording (string filename)
 	{
-		Debug.Log (string.Format ("File exists: {0}", System.IO.File.Exists (filepath)));
+		string filepath = Path.Combine(Application.persistentDataPath, filename);
 
-//		Debug.Log (System.IO.Path.GetDirectoryName (filepath));
-		string url = "file://" + filepath;
+		Debug.Log (string.Format ("MicHelper::PlayRecording() {0}", filepath));
 
-		Debug.Log (string.Format ("PlayRecording() {0}", url));
+		WWW www = new WWW("file://" + filepath);
 
-		WWW www = new WWW(url);
-		while (!www.isDone) 
-		{
-			//Wait untill it's done
-			Debug.Log("downloading");
+		while (!www.isDone) {
+			// wait til done since it takes more than 1 frame in some cases
 		}
 
 		goAudioSource.clip = WWWAudioExtensions.GetAudioClip (www, true, false, AudioType.WAV);
-//		goAudioSource.clip.LoadAudioData ();
 		Debug.Log (goAudioSource.clip.loadState);
 		goAudioSource.Play ();
 	}
