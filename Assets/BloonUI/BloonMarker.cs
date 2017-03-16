@@ -48,6 +48,8 @@ public class BloonMarker : MonoBehaviour
 
 	public string m_audioRecordingFilename = "";
 
+//	public float m_growthSteps = 0.8f / (20 * 60);
+
 	/// <summary>
 	/// The marker's transformation with respect to the device frame.
 	/// </summary>
@@ -58,14 +60,39 @@ public class BloonMarker : MonoBehaviour
 	/// </summary>
 	private Animation m_anim;
 
+	private const float START_SCALE = 0.4f;
+
 	/// <summary>
 	/// Awake this instance.
 	/// </summary>
 	private void Awake()
 	{
+		this.transform.localScale = new Vector3 (START_SCALE, START_SCALE, START_SCALE);
+
 		// The animation should be started in Awake and not Start so that it plays on its first frame.
 //		m_anim = GetComponent<Animation>();
 //		m_anim.Play("ARMarkerShow", PlayMode.StopAll);
+	}
+
+	public void Grow() {
+		Vector3 scale = this.transform.localScale;
+		float nextScale = scale.x + ((Time.deltaTime / MicHelper.MAX_RECORDING_SECONDS) * 0.8f);
+
+		Debug.LogFormat ("BloonMarker:Grow() increaseBy: {0}", nextScale);
+
+		scale.Set (nextScale, nextScale, nextScale);
+		this.transform.localScale = scale;
+	}
+
+	public void RecordingComplete ()
+	{
+		this.GetComponent<MeshCollider> ().enabled = true;
+	}
+
+	public void Pop ()
+	{
+		// TODO animate destruction
+		HideDone ();
 	}
 
 	/// <summary>

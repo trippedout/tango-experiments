@@ -12,7 +12,7 @@ public class MicHelper : MonoBehaviour
 	private int maxFreq;  
 
 	// TODO make this 
-	private int MAX_RECORDING_SECONDS = 20;
+	public static int MAX_RECORDING_SECONDS = 20;
 
 	//A handle to the attached AudioSource  
 	private AudioSource goAudioSource;  
@@ -79,6 +79,7 @@ public class MicHelper : MonoBehaviour
 		}
 
 		marker.m_isRecording = false;
+		marker.RecordingComplete ();
 
 		// test audio
 		goAudioSource.Play(); //Playback the recorded audio  

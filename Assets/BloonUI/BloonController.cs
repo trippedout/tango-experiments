@@ -50,9 +50,12 @@ public class BloonController : MonoBehaviour, ITangoDepth
 				StartCoroutine (_AddBalloon (t.position));
 			}
 		} else if ((t.phase == TouchPhase.Moved || t.phase == TouchPhase.Stationary) && m_currentMarker == null) {
-			Debug.Log ("Waiting to Record...");
-		} else if (t.phase == TouchPhase.Moved && m_currentMarker) {
+			Debug.Log ("Waiting to ballon to be created...");
+		} else if ((t.phase == TouchPhase.Moved || t.phase == TouchPhase.Stationary) && m_currentMarker) {
 			// TODO do cool shit while moving around/recording
+			if (m_currentMarker.m_isRecording) {
+				m_currentMarker.Grow ();
+			}
 		} else if (t.phase == TouchPhase.Ended && m_currentMarker ) { // end touch
 			Debug.Log("Recording/TouchPhase complete");
 
@@ -71,6 +74,7 @@ public class BloonController : MonoBehaviour, ITangoDepth
 			m_micHelper.PlayRecording (marker.m_audioRecordingFilename);
 		}
 
+		m_currentMarker.Pop ();
 		m_currentMarker = null;
 	}
 
