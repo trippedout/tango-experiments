@@ -21,7 +21,7 @@ Shader "Custom/OcclusionMask"
 {
     SubShader 
     {
-//        Tags {"Queue" = "Geometry+10" }
+        Tags {"Queue" = "Geometry-10" } // ordering shit
 
         ColorMask 0
         ZWrite On

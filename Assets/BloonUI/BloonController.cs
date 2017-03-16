@@ -8,15 +8,30 @@ public class BloonController : MonoBehaviour, ITangoDepth
 
 	public MicHelper m_micHelper;
 
+	public AudioSource m_balloonPopAudio;
+
 	private BloonMarker m_currentMarker;
 
 	private TangoApplication m_tangoApplication;
 
 	bool m_findPlaneWaitingForDepth;
 
+	public delegate void BalloonListener(GameObject obj);
+
+	private BalloonListener m_balloonAddedListener, m_balloonPoppedListener;
+
 	public void Init(TangoApplication app) {
 		m_tangoApplication = app;
 		m_tangoApplication.Register(this);
+	}
+
+	public void SetOnBalloonAddedListener(BalloonListener listener) {
+		m_balloonAddedListener = listener;
+	}
+
+	public void SetOnBalloonPoppedListener (BalloonListener listener)
+	{
+		m_balloonPoppedListener = listener;
 	}
 
 	// Use this for initialization
@@ -70,12 +85,17 @@ public class BloonController : MonoBehaviour, ITangoDepth
 	private void _PlayBackBalloonAndPop(BloonMarker marker) {
 		Debug.Log (string.Format ("PlayBackBalloonAndPop: {0}", marker.m_audioRecordingFilename));
 
+		m_balloonPopAudio.Play ();
+
 		if(!string.IsNullOrEmpty(marker.m_audioRecordingFilename)) {
 			m_micHelper.PlayRecording (marker.m_audioRecordingFilename);
 		}
 
-		m_currentMarker.Pop ();
-		m_currentMarker = null;
+		marker.Pop ();
+		m_balloonPoppedListener (marker.gameObject);
+
+		if(m_currentMarker)
+			m_currentMarker = null;
 	}
 
 	public GameObject AddMarkerByData (AreaLearningInGameController.MarkerData mark)
@@ -83,6 +103,9 @@ public class BloonController : MonoBehaviour, ITangoDepth
 		GameObject temp = Instantiate(m_marker,
 			mark.m_position,
 			mark.m_orientation) as GameObject;
+
+		//re-enabled collider since we're not growing it
+		temp.GetComponent<MeshCollider> ().enabled = true;
 
 		return temp;
 	}
@@ -140,6 +163,7 @@ public class BloonController : MonoBehaviour, ITangoDepth
 //		markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
 
 //		m_markerList.Add(newMarkObject);
+		m_balloonAddedListener (newMarkObject);
 
 		Debug.Log ("Balloon successfully Created");
 

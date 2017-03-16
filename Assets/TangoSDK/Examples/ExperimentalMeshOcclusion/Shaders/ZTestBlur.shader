@@ -70,7 +70,8 @@ Shader "Custom/ZTestBlur"
         };
         
         #include "TangoOcclusion.cginc"
-        
+
+        // look up! surface surf - surface shaders
         void surf(Input IN, inout SurfaceOutput o)
         {
             // Get the non-occluded color from the texture.

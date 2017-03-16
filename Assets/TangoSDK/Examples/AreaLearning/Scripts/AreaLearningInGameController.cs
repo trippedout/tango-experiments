@@ -145,7 +145,14 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         if (m_tangoApplication != null)
         {
             m_tangoApplication.Register(this);
+
 			m_bloonController.Init (m_tangoApplication);
+			m_bloonController.SetOnBalloonAddedListener ((marker) => {
+				m_markerList.Add(marker);
+			});
+			m_bloonController.SetOnBalloonPoppedListener ((marker) => {
+				m_markerList.Remove(marker);
+			});
         }
     }
 
@@ -493,6 +500,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 			temp.m_type = obj.GetComponent<BloonMarker> ().m_type;
             temp.m_position = obj.transform.position;
             temp.m_orientation = obj.transform.rotation;
+			temp.m_scaleFactor = obj.transform.localScale.x;
 
             xmlDataList.Add(temp);
         }
@@ -527,9 +535,8 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         m_markerList.Clear();
         foreach (MarkerData mark in xmlDataList)
         {
+			// Instantiate all markers' gameobject.
 			GameObject temp = m_bloonController.AddMarkerByData (mark);
-            // Instantiate all markers' gameobject.
-
             m_markerList.Add(temp);
 
 			// Set Audio Path
@@ -537,7 +544,10 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
 			if(!String.IsNullOrEmpty(mark.m_audioFilePath)) {
 				Debug.Log (string.Format ("Mark has audio: {0}", mark.m_audioFilePath));
 				markerScript.m_audioRecordingFilename = mark.m_audioFilePath;
-			}			
+			}		
+
+			// Set Scale
+			temp.transform.localScale = new Vector3(mark.m_scaleFactor, mark.m_scaleFactor, mark.m_scaleFactor);
         }
     }
 
@@ -593,6 +603,9 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
         /// </summary>
         [XmlElement("orientation")]
         public Quaternion m_orientation;
+
+		[XmlElement("scaleFactor")]
+		public float m_scaleFactor;
 
 		[XmlElement("audio_file_path")]
 		public String m_audioFilePath;
