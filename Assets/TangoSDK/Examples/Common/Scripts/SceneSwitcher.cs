@@ -36,12 +36,12 @@ public class SceneSwitcher : MonoBehaviour
     /// </summary>
     private readonly string[] m_sceneNames =
     {
-		"ExperimentalMeshBuilderWithColor",
-		"ExperimentalMeshBuilderWithPhysics",
+//		"ExperimentalMeshBuilderWithColor",
+//		"ExperimentalMeshBuilderWithPhysics",
 		"ExperimentalMeshOcclusion",
         "AreaLearning",
         "AreaDescriptionManagement",
-        "SimpleAugmentedReality",
+//        "SimpleAugmentedReality",
     };
 
     /// <summary>

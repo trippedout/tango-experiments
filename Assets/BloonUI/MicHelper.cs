@@ -82,7 +82,7 @@ public class MicHelper : MonoBehaviour
 		marker.RecordingComplete ();
 
 		// test audio
-		goAudioSource.Play(); //Playback the recorded audio  
+//		goAudioSource.Play(); //Playback the recorded audio  
 
 		_StoreAudioFile (marker);
 	}

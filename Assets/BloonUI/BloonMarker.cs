@@ -95,6 +95,43 @@ public class BloonMarker : MonoBehaviour
 		HideDone ();
 	}
 
+	Vector3 m_lastCamPos = Vector3.zero;
+	Vector3 m_balloonVelocity = Vector3.zero;
+
+	void Update() {
+		// float up and shit
+		Vector3 lastPos = this.transform.position;
+		float yPlusFloat = lastPos.y + (3.0f / (1000.0f * 15.0f));
+
+//		lastPos.Set (lastPos.x, yPlusFloat, lastPos.z);
+		lastPos.y = yPlusFloat;
+
+		Vector3 camPos = Camera.main.transform.position;
+
+		float dist = _GetCamDistance ();
+		if (dist < .3) {
+			Vector3 camVel = camPos - m_lastCamPos;
+			Debug.LogFormat ("velocity: {0}", camVel);
+
+			m_balloonVelocity += camVel;
+		}
+
+		lastPos += m_balloonVelocity;
+
+		// set it and forget it
+		this.transform.position = lastPos;
+
+		// slow down and set shit
+		m_lastCamPos = camPos;
+		m_balloonVelocity.Scale (new Vector3(0.95f, 0.95f, 0.95f));
+
+	}
+
+	float _GetCamDistance ()
+	{
+		return Vector3.Distance (this.transform.position, Camera.main.transform.position);
+	}
+
 	/// <summary>
 	/// Plays an animation, then destroys.
 	/// </summary>
