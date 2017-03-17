@@ -195,7 +195,7 @@ public class AreaLearningInGameController : MonoBehaviour, ITangoPose, ITangoEve
             Touch t = Input.GetTouch(0);
 			Camera cam = Camera.main;
 
-			m_bloonController.HandleTouch (t, cam);
+//			m_bloonController.HandleTouch (t, cam);
         }
     }
 

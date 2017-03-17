@@ -415,7 +415,7 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
 
         // Disable unused components in tango application.
         m_tangoApplication.m_areaDescriptionLearningMode = false;
-        m_tangoApplication.m_enableDepth = false;
+        m_tangoApplication.m_enableDepth = true;
 
         // Set UI panel to the mesh interaction panel.
         m_relocalizeImage.gameObject.SetActive(true);

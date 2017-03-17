@@ -62,6 +62,8 @@ public class BloonMarker : MonoBehaviour
 	/// </summary>
 	private Animation m_anim;
 
+	public GameObject selection;
+
 	private const float START_SCALE = 0.4f;
 
 	/// <summary>
@@ -70,6 +72,8 @@ public class BloonMarker : MonoBehaviour
 	private void Awake()
 	{
 		this.transform.localScale = new Vector3 (START_SCALE, START_SCALE, START_SCALE);
+
+
 
 		// The animation should be started in Awake and not Start so that it plays on its first frame.
 //		m_anim = GetComponent<Animation>();
