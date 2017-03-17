@@ -48,7 +48,9 @@ public class BloonMarker : MonoBehaviour
 
 	public string m_audioRecordingFilename = "";
 
-//	public float m_growthSteps = 0.8f / (20 * 60);
+	Vector3 m_lastCamPos = Vector3.zero;
+
+	Vector3 m_balloonVelocity = Vector3.zero;
 
 	/// <summary>
 	/// The marker's transformation with respect to the device frame.
@@ -94,9 +96,6 @@ public class BloonMarker : MonoBehaviour
 		// TODO animate destruction
 		HideDone ();
 	}
-
-	Vector3 m_lastCamPos = Vector3.zero;
-	Vector3 m_balloonVelocity = Vector3.zero;
 
 	void Update() {
 		// float up and shit

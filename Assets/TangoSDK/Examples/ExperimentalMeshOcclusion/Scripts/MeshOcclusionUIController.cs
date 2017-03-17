@@ -173,6 +173,8 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
     /// </summary>
     private string m_meshSavePath;
 
+	public BloonController m_bloonController;
+
     /// <summary>
     /// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     /// </summary>
@@ -198,6 +200,16 @@ public class MeshOcclusionUIController : MonoBehaviour, ITangoLifecycle, ITangoP
             {
                 m_tangoApplication.RequestPermissions();
             }
+
+			m_bloonController.Init (m_tangoApplication);
+			m_bloonController.SetOnBalloonAddedListener ((marker) => {
+				Debug.Log("added ballon ctrl");
+//				m_markerList.Add(marker);
+			});
+			m_bloonController.SetOnBalloonPoppedListener ((marker) => {
+				Debug.Log("popped ballon ctrl");
+//				m_markerList.Remove(marker);
+			});
         }
     }
 

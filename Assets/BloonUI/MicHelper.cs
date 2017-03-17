@@ -12,7 +12,7 @@ public class MicHelper : MonoBehaviour
 	private int maxFreq;  
 
 	// TODO make this 
-	public static int MAX_RECORDING_SECONDS = 10;
+	public static int MAX_RECORDING_SECONDS = 5;
 
 	//A handle to the attached AudioSource  
 	private AudioSource goAudioSource;  

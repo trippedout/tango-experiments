@@ -43,11 +43,16 @@ public class BloonController : MonoBehaviour, ITangoDepth
 	// Update is called once per frame
 	void Update ()
 	{
-	
+		if (Input.touchCount == 1)
+		{
+			Touch t = Input.GetTouch(0);
+			_HandleTouch (t);
+		}
 	}
 
-	public void HandleTouch (Touch t, Camera cam)
+	public void _HandleTouch (Touch t)
 	{
+		Camera cam = Camera.main;
 		RaycastHit hitInfo;
 
 		if (t.phase == TouchPhase.Began) { // start touch
@@ -55,13 +60,9 @@ public class BloonController : MonoBehaviour, ITangoDepth
 			if (Physics.Raycast (cam.ScreenPointToRay (t.position), out hitInfo)) {
 				// Found a marker, select it (so long as it isn't disappearing)!
 				GameObject tapped = hitInfo.collider.gameObject;
-//				if (!tapped.GetComponent<Animation> ().isPlaying) {
-					_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
-//				}
+				_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
 			} else {
-				// Place a new point at that location, clear selection
 				Debug.Log("Adding Balloon");
-
 				StartCoroutine (_AddBalloon (t.position));
 			}
 		} else if ((t.phase == TouchPhase.Moved || t.phase == TouchPhase.Stationary) && m_currentMarker == null) {
@@ -163,6 +164,7 @@ public class BloonController : MonoBehaviour, ITangoDepth
 //		markerScript.m_deviceTMarker = Matrix4x4.Inverse(uwTDevice) * uwTMarker;
 
 //		m_markerList.Add(newMarkObject);
+
 		m_balloonAddedListener (newMarkObject);
 
 		Debug.Log ("Balloon successfully Created");
