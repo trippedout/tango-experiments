@@ -66,18 +66,14 @@ public class BloonMarker : MonoBehaviour
 
 	private const float START_SCALE = 0.4f;
 
+	private Vector3 friction = new Vector3(0.95f, 0.95f, 0.95f);
+
 	/// <summary>
 	/// Awake this instance.
 	/// </summary>
 	private void Awake()
 	{
 		this.transform.localScale = new Vector3 (START_SCALE, START_SCALE, START_SCALE);
-
-
-
-		// The animation should be started in Awake and not Start so that it plays on its first frame.
-//		m_anim = GetComponent<Animation>();
-//		m_anim.Play("ARMarkerShow", PlayMode.StopAll);
 	}
 
 	public void Grow() {
@@ -98,7 +94,9 @@ public class BloonMarker : MonoBehaviour
 	public void Pop ()
 	{
 		// TODO animate destruction
-		HideDone ();
+
+
+		StartCoroutine(_HideDone ());
 	}
 
 	void Update() {
@@ -114,8 +112,6 @@ public class BloonMarker : MonoBehaviour
 		float dist = _GetCamDistance ();
 		if (dist < .3) {
 			Vector3 camVel = camPos - m_lastCamPos;
-			Debug.LogFormat ("velocity: {0}", camVel);
-
 			m_balloonVelocity += camVel;
 		}
 
@@ -126,7 +122,7 @@ public class BloonMarker : MonoBehaviour
 
 		// slow down and set shit
 		m_lastCamPos = camPos;
-		m_balloonVelocity.Scale (new Vector3(0.95f, 0.95f, 0.95f));
+		m_balloonVelocity.Scale (friction);
 
 	}
 
@@ -146,8 +142,10 @@ public class BloonMarker : MonoBehaviour
 	/// <summary>
 	/// Callback for the animation system.
 	/// </summary>
-	private void HideDone()
+	private IEnumerator _HideDone()
 	{
+		yield return new WaitForSeconds (.1f);
+
 		Destroy(gameObject);
 	}
 }

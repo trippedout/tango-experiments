@@ -51,26 +51,32 @@ public class BloonController : MonoBehaviour, ITangoDepth
 		}
 	}
 
+	private int m_touchCounter = 0;
+
 	public void _HandleTouch (Touch t)
 	{
 		Camera cam = Camera.main;
 		RaycastHit hitInfo;
 
+		m_touchCounter++;
+
 		if (t.phase == TouchPhase.Began) { // start touch
 			Debug.Log (t.phase);
 
-			bool hitObject = Physics.Raycast (cam.ScreenPointToRay (t.position), out hitInfo);
-			if (hitObject) {
-				GameObject tapped = hitInfo.collider.gameObject;
-				BloonMarker marker = tapped.GetComponent<BloonMarker> ();
+			m_touchCounter = 0;
 
-				Debug.LogFormat ("hitObject: {0}", tapped);
-
-				if (marker) {
-					_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
-					return;
-				}
-			}
+//			bool hitObject = Physics.Raycast (cam.ScreenPointToRay (t.position), out hitInfo);
+//			if (hitObject) {
+//				GameObject tapped = hitInfo.collider.gameObject;
+//				BloonMarker marker = tapped.GetComponent<BloonMarker> ();
+//
+//				Debug.LogFormat ("hitObject: {0}", tapped);
+//
+//				if (marker) {
+//					_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
+//					return;
+//				}
+//			}
 
 			// tapped somewhere decent, add a balloon
 			Debug.Log("Adding Balloon");
@@ -89,6 +95,19 @@ public class BloonController : MonoBehaviour, ITangoDepth
 			if(m_currentMarker.m_isRecording) {
 				m_micHelper.StopRecording (m_currentMarker);
 			}
+
+//			bool hitObject = Physics.Raycast (cam.ScreenPointToRay (t.position), out hitInfo);
+//			if (hitObject) {
+//				GameObject tapped = hitInfo.collider.gameObject;
+//				BloonMarker marker = tapped.GetComponent<BloonMarker> ();
+//
+//				Debug.LogFormat ("hitObject: {0}", tapped);
+//
+//				if (marker) {
+//					_PlayBackBalloonAndPop (tapped.GetComponent<BloonMarker> ());
+//					return;
+//				}
+//			}
 
 			m_currentMarker = null;
 		}
@@ -126,15 +145,12 @@ public class BloonController : MonoBehaviour, ITangoDepth
 	{
 		m_findPlaneWaitingForDepth = true;
 
-		Debug.Log ("start listening");
 		// Turn on the camera and wait for a single depth update.
 		m_tangoApplication.SetDepthCameraRate(TangoEnums.TangoDepthCameraRate.MAXIMUM);
 		while (m_findPlaneWaitingForDepth)
 		{
 			yield return null;
 		}
-
-		Debug.Log ("hi");
 
 		m_tangoApplication.SetDepthCameraRate(TangoEnums.TangoDepthCameraRate.DISABLED);
 
@@ -181,9 +197,11 @@ public class BloonController : MonoBehaviour, ITangoDepth
 
 		m_balloonAddedListener (newMarkObject);
 
-		Debug.Log ("Balloon successfully Created");
 
 		m_currentMarker = markerScript;
+
+		Debug.LogFormat ("Balloon successfully Created: {0}", m_currentMarker);
+
 		m_micHelper.StartRecording (m_currentMarker);
 	}
 
@@ -195,7 +213,6 @@ public class BloonController : MonoBehaviour, ITangoDepth
 	/// <param name="tangoDepth">Tango depth.</param>
 	public void OnTangoDepthAvailable(TangoUnityDepth tangoDepth)
 	{
-		Debug.Log ("OnTangoDepthAvailable");
 		// Don't handle depth here because the PointCloud may not have been updated yet.  Just
 		// tell the coroutine it can continue.
 		m_findPlaneWaitingForDepth = false;
